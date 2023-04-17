@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Seminario de Instrumentos Computacionales</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Cristian Bonavida - UNLP" />
+    <script src="R-Clase-1_files/header-attrs-2.11/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Seminario de Instrumentos Computacionales
+]
+.subtitle[
+## R - Clase 1
+]
+.author[
+### Cristian Bonavida - UNLP
+]
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# ¿Qué es R?
+
+R es un **lenguaje** y es un **software** que permite el analisis estadistico y gráfico.
+
+-   **Lenguaje** porque tiene su propia sintaxis desde la cual escribir las sentencias y comandos
+
+--
+
+-   Es un **software** porque es al mismo tiempo un programa o entorno integrado con multiples funcionalidades
+
+---
+
+# ¿Por qué aprender R?
+
+-   R es un programa **abierto y gratuito**. Es decir de acceso libre y que se expande con contribuciones de la comunidad de usuarios (paquetes)
+
+-   Está especialmente enfocado en tareas de computo y analisis estadístico
+
+-   Es tremendamente eficiente para el procesamiento de grandes volumenes de datos.
+
+-   Es un programa muy versatil que permite utilizar la misma herramienta para una gran variedad de fines y aplicaciones
+
+
+---
+
+# ¿En el medio entre Stata y Python?
+
+-Python es lo que se conoce como ["general-purpose programming language"](https://zims-en.kiwix.campusafrica.gos.orange.com/wikipedia_en_all_nopic/A/General-purpose_programming_language). Con Python podemos programar practicamente lo que sea, correr cualquier modelo de machine learning, crear una página web, etc
+
+--
+
+-R es un lenguaje del tipo ["domain-specific language (DSL)"](https://en.wikipedia.org/wiki/Domain-specific_language) porque sus funciones están pensandos para un área de uso o dominio específico. En este caso para el análisis estadístico y gráfico de manera eficiente y sucinta. R, al igual que Python se expanden muy rapidamente en sus funciones y usos y están pensados para tareas que implican un procesamiento computacional intensivo.
+
+--
+
+-Stata por su parte es un programa con funcionalidades muchos más especificas y acotadas. Su uso está orientado a la econometría (y al campo de la economia) y sus aplicaciones son menos versatiles. "You have one job..."
+
+
+---
+
+
+## Las ganancias de R
+
+Además de ser un programa con multiples aplicaciones, R es ampliamente eficiente en el procesamiento de datos
+
+&lt;img src="inputs/Clase1/performance.png" width="57%" height="40%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## ¿Aun más eficiente?
+
+Como veremos luego los paquetes permiten expandir R, e incluso existen paquetes que vuelven al procesamiento de datos mucho mas eficiente respecto a la performance de base
+
+&lt;img src="inputs/Clase1/dt_dplyr.jpg" width="75%" height="55%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Interface
+
+¿Con qué nos vamos a encontrar?
+
+&lt;img src="inputs/Clase1/interface_mod.png" width="100%" height="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Elementos Fundamentales
+
+-   Valores
+
+-   Vectores
+
+-   Funciones (comandos)
+
+-   Data Frames (base de datos)
+
+
+---
+
+## Elementos Fundamentales
+
+-   **Valores**
+
+-   Vectores
+
+-   Funciones (comandos)
+
+-   Data Frames (base de datos)
+
+---
+
+
+## Valores
+
+Es el elemento más básico que existe en el entorno de R
+
+-   `5` es un valor númerico
+
+-   `5*6` es también un valor numérico
+
+-   `"dos"` es un valor charachter
+
+-   `"dos días"` es también un valor charachter
+
+-   `FALSE` es un valor booleano o lógico
+
+---
+
+## Elementos Fundamentales
+
+-   Valores
+
+-   **Vectores**
+
+-   Funciones (comandos)
+
+-   Data Frames (base de datos)
+
+
+---
+
+
+## Vectores
+
+Los vectores son una colección de valores
+
+Para agrupar esos valores utilizamos el comando `c()`
+
+Estos también pueden ser de distinto tipo:
+
+
+```r
+c(5, 5*6)
+
+c("dos", "dos días")
+
+c(5*6, "días")
+```
+
+
+---
+
+## Objetos
+
+Notar que ninguno de los valores ni vectores anteriores fueron almacenados en un objeto. Si quisiera llamarlos ¿cómo haría? 
+
+--
+
+**Tengo primero que definirlo!** Especificando 3 inputs:
+-   nombre del objeto
+-   utilizar el operador asignación `&lt;-` (pensarlo como un `=`)
+-   contenido
+
+--
+
+
+```r
+
+objeto_1 &lt;- 5
+objeto_1
+## [1] 5
+
+objeto_2 &lt;- 5 * 6
+objeto_2
+## [1] 30
+
+objeto_3 &lt;- objeto_1 + objeto_2
+objeto_3
+## [1] 35
+```
+
+
+---
+
+## Objetos
+
+Mismo para vectores
+
+Definir un objeto me permite luego llamarlo para distintas operaciones (lo que se concoe como vectorización)
+
+--
+
+
+```r
+
+vector_0 &lt;- c(1, 3, 4)
+vector_0
+## [1] 1 3 4
+
+vector_1 &lt;- vector_0 + 12
+vector_1
+## [1] 13 15 16
+
+vector_2 &lt;- vector_0 + (12:14)
+vector_2
+## [1] 13 16 18
+```
+
+
+
+---
+
+## Objetos
+
+Otros ejemplos con vectores del tipo character
+
+
+```r
+ARG_1 &lt;- "muchaaaaaachos,"
+ARG_2 &lt;- "ahora nos volvimos a ilusionar"
+
+ARG &lt;- paste(ARG_1, ARG_2)
+print(ARG)
+```
+
+```
+## [1] "muchaaaaaachos, ahora nos volvimos a ilusionar"
+```
+
+---
+
+## Tipos de datos
+
+Aparte de los numéricos y character. ¿Qué otro tipo de datos existen?
+
+
+|  Nombre  | Ejemplo |   Name    |
+|:--------:|:-------:|:---------:|
+|  Entero  |    1    |  Integer  |
+| Numérico |   1.8   |  Numeric  |
+| Caracter |  "uno"  | Character |
+|  Factor  |   uno   |  Factor   |
+|  Logico  | `TRUE`  |  Logical  |
+| Perdido  |  `NA`   |  Missing  |
+|  Vacío   | `NULL`  |   null    |
+
+---
+
+## Tipos de datos
+
+¿Cómo podemos conocer qué tipos de datos son? Podemos emplear el comando `class()` de forma genérica
+
+
+```r
+
+class(5)
+## [1] "numeric"
+
+class("ARGENTINA")
+## [1] "character"
+
+class(TRUE) 
+## [1] "logical"
+```
+
+---
+
+
+## Tipos de datos
+
+De la misma manera, podemos testear específicamente cada tipo de dato con el conjunto de funciones `is()`
+
+
+|     Funcion      |   Tipo   |
+|:----------------:|:--------:|
+|  `is.integer()`  |  Entero  |
+|  `is.numeric()`  | Numérico |
+| `is.character()` | Caracter |
+|  `is.factor()`   |  Factor  |
+|  `is.logical()`  |  Logico  |
+|    `is.na()`     | Perdido  |
+|   `is.null()`    |  Vacío   |
+
+---
+
+## Tipos de datos
+
+
+
+```r
+is.integer(5)
+is.integer("ARGENTINA")
+is.character("ARGENTINA")
+```
+
+```
+## [1] FALSE
+## [1] FALSE
+## [1] TRUE
+```
+
+
+---
+
+## Elementos Fundamentales
+
+-   Valores
+-   Vectores
+-   **Funciones** (comandos)
+-   Data Frames (base de datos)
+
+---
+
+## Funciones
+
+Ya sabemos para que sirve `is.interger()`, `class()`, también usamos un ejemplo con `paste()`
+
+Ahora, estos elementos no son ni valores, ni vectores. ¿Qué son?
+
+
+---
+
+## Funciones
+
+Las funciones son comandos, son expresiones que encierran una orden predeterminada. 
+
+Al invocar una función le estaremos diciendo a R que realice una tarea particular. 
+
+Para ejecutar una función R necesita de dos inputs:
+
+- Nombre de la función
+- Argumento 
+
+--
+
+
+```r
+class(5)   # "class" es el nombre de la función
+           # 5 es el argumento
+```
+
+```
+## [1] "numeric"
+```
+
+
+---
+
+## Funciones
+
+Existen interminables tipos de funciones. De las mas simples a las mas complejas. Sea cual fuera la función, siempre, los argumentos están predefinidos. Los argumentos pueden ser
+
+ - Opcionales
+ - Requeridos
+  
+Si pasamos una función y nos falta algún argumento requerido, R no podrá completar la tarea
+
+
+```r
+strsplit(x = "CAMPEONES DEL MUNDO - 2022")
+```
+
+```
+## Error in strsplit(x = "CAMPEONES DEL MUNDO -
+2022"): el argumento "split" está ausente, sin
+valor por omisión
+```
+
+
+---
+
+## Funciones
+
+Para dividir el texto, la función requiere un argumento **obligatorio** que indique el patrón que separa en dos la expresión
+
+
+```r
+strsplit(x="CAMPEONES DEL MUNDO - 2022", split="-")
+```
+
+```
+## [[1]]
+## [1] "CAMPEONES DEL MUNDO " " 2022"
+```
+
+
+---
+class: title-slide, top, left, inverse
+background-image: url("inputs/Clase1/messi_copa.jpg")
+background-size: cover
+
+## Funciones
+
+Y el siguiente comando funcionaría? 
+
+Aparte del fondo, qué otra diferencia notan respecto de la slide anterior...
+
+
+```r
+strsplit("CAMPEONES DEL MUNDO - 2022", "-")
+```
+
+--
+
+
+```
+## [[1]]
+## [1] "CAMPEONES DEL MUNDO " " 2022"
+```
+
+--
+
+Sí, porque los argumentos pueden indicarse en orden, ahorrandonos tener que llamarlos explicitamente. R entiende solo a qué no referimos
+
+
+
+---
+
+## Funciones
+
+Los argumentos tienen valores por default, es decir por omisión. La función esta setteada de manera que, si no indico lo contrario, el argumento tomará una valor por default. 
+
+
+```r
+valores &lt;- c(5, 25, 65, NA, 110, 220)
+sum(valores)
+sum(valores, na.rm=TRUE)
+```
+
+```
+## [1] NA
+## [1] 425
+```
+
+La función `sum()` incluye los valores `NA` en la suma, ya que por default el argumento `na.rm` es `FALSE`. Por eso el resultado arrojado será también `NA`. Para cambiar ese comportamiento tengo que explicitar el argumento como `TRUE`
+
+---
+
+## Funciones
+
+Otro ejemplo
+
+
+```r
+pi &lt;- 3.141592653
+pi_inter &lt;- round(pi) 
+pi_inter
+```
+
+```
+## [1] 3
+```
+
+--
+
+En este caso, no explicitamos el argumento `digits()` en la función, el cual indica cuántos decimales incluir. El valor por omisión es 0
+
+
+```r
+pi_decim &lt;- round(pi, digits = 2) 
+pi_decim 
+```
+
+```
+## [1] 3.14
+```
+
+
+---
+
+## Funciones
+
+Cómo hacemos para saber cuales son los argumentos de cada función y cuáles son sus valores por default. 
+
+Al igual que en stata, tenemos un comando como el help. 
+
+
+```r
+?sum()
+```
+
+![Documentación](inputs/Clase1/help_output.PNG)
+
+
+---
+
+
+## Funciones
+
+Además de la documentación completa, también podemos  darle una mirada rápida a la función desde la consola directamente. Esto resulta muy practica cuando estamos escribiendo el código y lo que necesitamos es "refrescar la memoria"
+
+![Documentación](inputs/Clase1/guide_console.PNG)  
+
+
+
+---
+
+## Funciones
+
+Como veremos mas adelante, en R es sencillo y de gran ayuda crear nuestras propias funciones, según lo que necesitemos hacer.
+
+Por suerte, existe una enorme comunidad de usuarios, quienes ya desarrollaron un infinidad de funciones las cuales podemos aprovechar.
+
+
+---
+
+
+## Paquetes
+
+Cuando instalamos R, el programa ya trae una serie de funciones `base`. Una de las grandes ventajas de R, es que puede expandirse en sus usos y aplicaciones a partir de otros paquetes. 
+
+Los paquetes no son otra cosa que un *wrap* o grupo de funciones, que tienen una aplicación común o que sirven para realizar un conjunto de tareas similares. 
+
+Pueden pensarlas como funciones agrupadas por temática de uso
+
+Por ejemplo, el paquete `"stringr"` incluye funciones para trabajar con *strings*
+
+
+
+---
+
+## Paquetes
+
+Para poder usar un paquete hay que hacer dos cosas. 
+
+- Instalarlo
+- Cargarlo
+
+
+```r
+install.packages("stringr")   #instalo
+library(stringr)              #cargo
+```
+
+Listo!
+
+
+---
+
+## Paquetes
+
+El cuidado que debemos tener es que, la haber tantos paquetes, el mismo nombre o similar puede referir a funciones de paquetes distintos. 
+
+Nuevamente, la información desde la consola nos ayuda a saber cuás es cuál y a elegir la función deseada
+
+
+![Una función similar, pero distintos paquetes](inputs/Clase1/guide_packages.PNG)
+
+
+---
+
+## Paquetes
+
+La mejor forma de asegurarnos que estamos usando la función del paquete que queremos, es llamar primero al paquete y luego elegir dentro de él, la función buscada. 
+
+Para eso escribimos el nombre del paquete seguido de "::"
+
+
+
+```r
+stringr::str_split()
+```
+
+---
+
+## Elementos Fundamentales
+
+-   Valores
+-   Vectores
+-   Funciones 
+-   **Data Frames** (bases de datos)
+
+
+
+
+---
+
+## Data Frames
+
+Un data frame es el elemento más tipico para trabajar con datos. 
+
+Es una estructura de datos **tabular**, es decir ordenados en **columnas** (variables) y **filas** (observaciones). 
+
+Un dataframe es un conjunto de vectores, los cuales pueden ser de **distinto tipo**, pero que deben ser de de la **misma longitud**
+
+
+---
+
+## Data Frames
+
+Voy a crear un objeto llamado "df" a partir de vectores con el comando `data.frame()`
+
+
+```r
+sede &lt;- c("Alemania", "Sudáfrica", "Brasil", "Rusia", "Qatar")
+año &lt;- seq(2006, 2022, 4)
+campeon &lt;- c("Italia", "España", "Alemania", "Francia", "Argentina")
+publico &lt;- c(69000, 84490, 74738, 78000, 88966)
+penales &lt;- c(TRUE, FALSE, FALSE, FALSE, TRUE)
+
+df &lt;- data.frame(sede, año, campeon, publico, penales)
+```
+
+--
+
+
+
+
+---
+
+## Data Frames
+
+
+|sede      |  año|campeon   | publico|penales |
+|:---------|----:|:---------|-------:|:-------|
+|Alemania  | 2006|Italia    |   69000|TRUE    |
+|Sudáfrica | 2010|España    |   84490|FALSE   |
+|Brasil    | 2014|Alemania  |   74738|FALSE   |
+|Rusia     | 2018|Francia   |   78000|FALSE   |
+|Qatar     | 2022|Argentina |   88966|TRUE    |
+
+---
+
+## Data Frames
+
+Inspeccionando el dataframe 
+
+- Cual es la dimensión de este dataframe?
+
+--
+- Cuales son los nombres de las variables?
+
+--
+- Cuantas filas tiene? 
+
+--
+- De qué clase es?
+
+
+```r
+
+dim(df)
+## [1] 5 5
+names(df)
+## [1] "sede"    "año"     "campeon" "publico" "penales"
+nrow(df)
+## [1] 5
+class(df)
+## [1] "data.frame"
+```
+
+
+---
+
+## Subconjuntos
+
+Algo MUY importante, es saber cómo **navegar por un dataframe o por un vector** 
+
+Esto me va a permitir generar subconjuntos de datos, definir nuevos elementos, operar sobre ellos, etc
+
+--
+
+Por ejemplo, ¿cómo hago para **llamar a un elmento** de un vector?
+
+--
+
+Debeo indicar el *orden* del elemento
+
+
+```r
+
+actual &lt;- campeon[5]
+actual
+## [1] "Argentina"
+```
+
+
+---
+
+## Subconjuntos
+
+Obvimaente, puedo llamar a mas de un elemento a la vez.
+
+--
+
+Por ejemplo si quisiera saber cuál son **los últimos dos** campeones
+
+
+```r
+
+ultimos_2 &lt;- campeon[4:5]
+ultimos_2
+## [1] "Francia"   "Argentina"
+```
+
+---
+
+## Subconjuntos
+
+¿Cómo hago para **quitar** el elemento del medio?
+
+--
+
+
+```r
+
+out_ger &lt;- campeon[-3]
+out_ger
+## [1] "Italia"    "España"    "Francia"   "Argentina"
+```
+
+--
+
+
+
+Supongamos que la cantidad de público en Rusia fue de 88000 y no 78000. Se les ocurre cómo hago para **modificar el valor**?
+
+--
+
+
+```r
+
+publico[4] &lt;- 88000
+publico
+## [1] 69000 84490 74738 88000 88966
+```
+
+
+---
+
+## Subconjuntos
+
+¿Cómo hago para sumar la cantidad de espectadores en las dos ultimas ediciones?
+
+--
+
+
+```r
+
+suma_pub_v1 &lt;- publico[4] + publico[5]
+suma_pub_v1
+## [1] 176966
+
+suma_pub_v2 &lt;- sum(publico[4], publico[5])
+suma_pub_v2
+## [1] 176966
+
+suma_pub_v3 &lt;- sum(publico[4:5])
+suma_pub_v3
+## [1] 176966
+
+suma_pub_v1 == suma_pub_v2
+## [1] TRUE
+suma_pub_v2 == suma_pub_v3
+## [1] TRUE
+```
+
+
+---
+
+## Subconjuntos
+
+Si qusiera extraer el elemento 1 y 5 del vector... esto estaría bien?
+
+
+
+```r
+prueba &lt;- campeon[1,5]
+```
+
+--
+
+
+```
+## Error in campeon[1, 5]: número incorreto de
+dimensiones
+```
+
+--
+
+Porque los vectores son elementos unidimensionales y la coma le indica a R, que estamos buscando elementos en dos dimensiones. En este caso **1 refiere a la fila y 5 a la columna**
+
+`df[fila, columna]`
+
+
+---
+
+## Subconjuntos
+
+Para definir un nuevo vector con el elemento 1 y 5 del vector de campeones tengo que usar el constructor que ya vimos: `c()`
+
+
+```r
+prueba &lt;- c(campeon[1], campeon[5])
+prueba
+```
+
+```
+## [1] "Italia"    "Argentina"
+```
+
+
+---
+
+## Subconjuntos
+
+Con esto en mente: `df[fila, columna]`
+
+Ahora veamos cómo acceder a elementos del data frame 
+
+--
+
+Quiero traer **TODAS LAS OBSERVACIONES** de la fila "penales", que es la última fila
+
+
+
+```r
+
+prueba1 &lt;- df[,5]
+prueba1
+## [1]  TRUE FALSE FALSE FALSE  TRUE
+
+prueba2 &lt;- df[,"penales"]
+prueba2
+## [1]  TRUE FALSE FALSE FALSE  TRUE
+```
+
+--
+
+Si en fila no indico nada, R entiende que quiero traer todas las filas de esa columna
+
+
+---
+
+## Subconjuntos
+
+Ahora traigamos **la primer fila** de la misma columna "penales"
+
+
+```r
+
+prueba1 &lt;- df[1,5]
+prueba1
+## [1] TRUE
+
+prueba2 &lt;- df[1,"penales"]
+prueba2
+## [1] TRUE
+```
+
+
+---
+
+## Subconjuntos
+
+Ahora solo la **primer fila**, pero con **todas las columnas**
+
+
+```r
+prueba &lt;- df[1,]
+prueba
+```
+
+```
+##       sede  año campeon publico penales
+## 1 Alemania 2006  Italia   69000    TRUE
+```
+
+
+---
+
+## Repaso
+
+
+---
+
+## Operador $
+
+Por qué es necesario indicar siempre df?
+
+--
+
+Porque a diferencia de stata, **podemos tener el entorno de trabajo multiples data frames definidos** y por tanto para llamar al elemento primero debo llamar a dataframe:
+
+--
+
+&lt;img src="inputs/Clase1/index_1.png" width="45%" height="25%" style="display: block; margin: auto;" /&gt;
+
+--
+
+Existe otra manera, muy usada en R de hacer esto: el simbolo `$`
+
+--
+
+&lt;img src="inputs/Clase1/index_2.png" width="45%" height="15%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Operador $
+
+Partimos desde el dataframe y luego indicamos la columna:
+
+`data.frame()` &gt;&gt; `columna` 
+
+O lo que es lo mismo:
+
+`data.frame()` &gt;&gt; `vector` 
+
+
+--
+
+
+```r
+df$penales
+```
+
+```
+## [1]  TRUE FALSE FALSE FALSE  TRUE
+```
+
+---
+
+## Operador $
+
+De la misma manera que haciamos antes
+
+--
+
+&lt;img src="inputs/Clase1/index_3.png" width="45%" height="25%" style="display: block; margin: auto;" /&gt;
+
+--
+
+el operador `$` nos permite traer un elemento particular
+
+--
+
+&lt;img src="inputs/Clase1/index_4.png" width="45%" height="15%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Operador $
+
+Partimos desde el dataframe y podemos llegar hasta una observación puntual:
+
+`data.frame()` &gt;&gt; `columna` &gt;&gt; `observación`
+
+O lo que es lo mismo:
+
+`data.frame()` &gt;&gt; `vector` &gt;&gt; `valor`
+
+--
+
+
+```r
+df$penales[1]
+```
+
+```
+## [1] TRUE
+```
+
+
+---
+
+## Filtrar observaciones
+
+Muchas veces lo que queremos hacer no es traer una observación puntual, sino todas aquellas que cumplen con una condición. Es decir que queremos *filtrar* nuestros datos
+
+--
+
+La regla es la de siempre: `df[fila, columna]`
+
+--
+
+Vimos que esto nos traía todas las filas
+
+
+```r
+df[,]
+```
+
+```
+##        sede  año   campeon publico penales
+## 1  Alemania 2006    Italia   69000    TRUE
+## 2 Sudáfrica 2010    España   84490   FALSE
+## 3    Brasil 2014  Alemania   74738   FALSE
+## 4     Rusia 2018   Francia   78000   FALSE
+## 5     Qatar 2022 Argentina   88966    TRUE
+```
+
+--
+Porque no especificabamos nada antes de la coma. 
+
+---
+
+## Filtrar observaciones
+
+`df[fila, columna]`
+
+
+En la posición de las filas es donde ahora debemos pasarle la condición. Para ello debo indicar:
+
+- sobre qué variable voy a buscar que se den determinadores valores
+- cual es, o cuáles son, esos valores
+
+--
+
+Por ejemplo, si quiero quedarme con todos los mundiales donde la final se definió por penales:
+
+
+```r
+df[df$penales==TRUE,]
+```
+
+```
+##       sede  año   campeon publico penales
+## 1 Alemania 2006    Italia   69000    TRUE
+## 5    Qatar 2022 Argentina   88966    TRUE
+```
+
+
+---
+
+## Filtrar observaciones
+
+
+Si queremos las observaciones para los mundiales donde el público fue mayor a 75 mil espectadores
+
+
+
+```r
+df[df$publico &gt; 75000,]
+```
+
+```
+##        sede  año   campeon publico penales
+## 2 Sudáfrica 2010    España   84490   FALSE
+## 4     Rusia 2018   Francia   78000   FALSE
+## 5     Qatar 2022 Argentina   88966    TRUE
+```
+
+
+---
+
+## Filtrar observaciones
+
+Notar que en los anteriores casos estoy llamando a las filas que cumplen la condición y a *todas la columnas del dataframe* 
+
+--
+
+Si ahora quisiera saber cuál fue la sede del Mundial cuando el campéon fue España, ¿Cómo harían?
+
+Piensen de nuevo en `df[fila, columna]`
+
+--
+
+
+```r
+df[df$campeon=="España", "sede"]
+```
+
+```
+## [1] "Sudáfrica"
+```
+--
+
+La orden: 
+
+*Del dataframe `df` quedate con las filas donde el valor de la columna `campeon` sean iguales a "España" y para esas observaciones traeme el valor que toma la columna `sede`*
+
+---
+
+## Filtrar observaciones
+
+¿Se les ocurre otra forma?
+
+--
+
+
+```r
+df$sede[df$campeon=="España"]
+```
+
+```
+## [1] "Sudáfrica"
+```
+--
+
+La orden: 
+
+*Del dataframe `df` traer la columna `sede`, cuando los valores de la columna `campeon` sean iguales a `"España"`*
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "rainbow",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

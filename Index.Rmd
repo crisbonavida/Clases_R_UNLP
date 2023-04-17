@@ -1,0 +1,9 @@
+---
+title: "Seminario de Instrumentos Computacionales"
+
+authot: 
+  - name: Cristian Bonavida
+  
+site: distill::distill_website
+
+---

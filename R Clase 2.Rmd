@@ -1,0 +1,1365 @@
+---
+title: "Seminario de Instrumentos Computacionales"
+subtitle: "R - Clase 2"
+author: "Cristian Bonavida"
+output:
+  xaringan::moon_reader:
+    css: ["xaringan-themer.css"]
+    nature:
+      highlightStyle: rainbow
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+<style>
+p.caption {
+  font-size: 0.6em;
+}
+</style>
+
+
+<style>
+div.remark-slide-content {
+  padding: 1em; /*default is 1em 4em*/
+}
+.dataTables_wrapper {
+  font-size: .5em;
+}
+</style>
+
+
+<style>
+pre {
+  white-space: pre !important;
+  overflow-y: auto !important;
+  max-height: 25vh !important;
+}
+</style>
+
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_solarized_light()
+
+```
+
+
+```{r path, include=FALSE}
+
+"%+%" <- function(x,y) paste(x,y,sep = "")         
+
+#defino path
+setwd(getwd())
+
+library(tidyverse)
+library(DT)
+library(rmarkdown)
+```
+
+
+```{r chunk_error, include=FALSE}
+
+error_hook <- knitr::knit_hooks$get("error")
+knitr::knit_hooks$set(error = function(x, options) {
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  error_hook(x, options)
+})
+
+```
+
+
+
+## Repaso Clase 1
+
+En la clase anterior vimos 
+
+- Qué era R y cuáles eran sus ventajas comparativas
+
+
+--
+
+- Aprendimos los fundamentos de R, es decir el ABC de este lenguaje
+    - valores
+    - vectores
+    - funciones
+    - dataframes
+    
+    
+--
+
+- Vimos qué tipos de datos existen y cómo reconocerlos
+
+
+
+--
+
+- Definimos un dataframe y vimos cómo navegar por él, llamando filas y columnas, filtrando observaciones y usando el operador `$`
+
+---
+
+## Data frames y bases de datos
+
+En la gran mayoria de las veces, no definimos un dataframe a mano, sino que este es una base de datos que importamos de un archivo, tal como ocurre con las encuestas de hogares.
+
+Los misma sintaxis que vimos antes nos servirán para manipular bases de datos mas grandes 
+
+El primer paso es saber importarlas
+
+
+---
+
+## Importar bases
+
+R es muy eficiente importando bases de datos en multiples formatos, incluso desde otros lenguajes
+
+Veamos el caso de la EPH. Cuando la descargamos de INDEC podemos bajar el archivo en formato `txt` y en formato `xls`. Para leer respectivas extensiones podemos usar las funciones de `R base`:
+
+- `read.csv()`
+- `read.xls()`
+
+--
+
+```{r, eval=FALSE}
+
+read.csv("datos/Clase2/EPH_3T_22/usu_individual_T322.txt", sep=";")
+
+```
+
+
+---
+
+## Importar bases
+
+Notar que solo la importamos, por lo tanto el output del comando (omitido aquí) será un print de las primeras filas.
+
+Recuerden que en R podemos tener multiples dataframes cargados en el entorno de trabjo, por eso, lo que debemos
+hacer es **asignar esta base de datos a un objeto**, es decir almacenarla con un nombre
+
+
+```{r, size="footnotesize"}
+
+eph_ind <- read.csv("datos/Clase2/EPH_3T_22/usu_individual_T322.txt", sep=";")
+
+```
+
+Ahora R no imprime nada, si la carga fue exitosa no obtendremos ningún output al correr el código
+
+---
+
+## Importar bases
+
+Pero en nuestro entorno de trabajo debemos ver ahora la base cargada, indicando cantidd filas (obs) y columnas (variables)
+
+```{r, echo=FALSE, out.width="80%", out.height="60%", fig.align="center"}
+
+knitr::include_graphics("inputs/Clase2/carga_base.jpg")
+
+```
+
+---
+
+## Explorar la base de datos
+
+Cuantás filas y cuantas columnas tiene nuestra base
+```{r}
+dim(eph_ind)
+```
+
+Cuáles son los nombres de esas columnas
+
+```{r, }
+
+names(eph_ind)
+
+```
+
+
+
+---
+
+## Explorar la base de datos
+
+Quiero chequear que todo esté ok, para eso puedo imprimir las primeras n filas (n=10 en este caso)
+
+```{r, eval=FALSE}
+
+head(eph_ind, 10)
+
+```
+
+
+```{r, echo=FALSE}
+
+paged_table(head(eph_ind, 10), 
+            options = list(rows.print = 10, cols.print = 5))
+
+```
+
+---
+
+## Explorar la base de datos
+
+Para visualizar la base completa
+
+```{r, eval=FALSE}
+
+View(eph_ind)
+
+```
+
+
+---
+
+## Manipular datos
+
+Ahora trabajemos sobre los datos que cargamos. Apliquemos lo que aprendimos y filtremos la base, dejando solo los individuos del aglomerado 18 (Resistencia - Chaco), que no tengan ingreso missing y que sean mujeres
+
+```{r, tidy=TRUE}
+
+eph_ind[eph_ind$AGLOMERADO==18 & !is.na(eph_ind$IPCF) & eph_ind$CH04==2,]
+
+```
+
+---
+
+## Manipular datos
+
+Ahora calculemos el promedio ponderado de edad para este subgrupo con la función `weighted.mean()`
+
+```{r}
+
+weighted.mean(eph_ind$CH06[eph_ind$AGLOMERADO==18 & !is.na(eph_ind$IPCF) & eph_ind$CH04==2], na.rm = TRUE)
+
+```
+
+Hicimos un calculo muy simple y ya vemos cómo el código se pone engorroso...
+
+--
+
+Qué pasaría si quisieramos agregar mas condiciones, o si necesitamos realizar un calculo por grupo (por hogares por ejemplo) o si a continuación sobre este mismo grupo queremos aplicar otra operación 
+
+--
+
+Acá es donde entran las funciones, para facilitarnos las cosas 
+
+
+---
+
+## Manipular datos
+
+Para manipular los datos empleamos la familia de funciones `Tidyverse`, que vendría a ser como una colección de paquetes que tienen en común que nos permiten realizar de manera eficiente un un amplio rango de operaciones. 
+
+--
+
+Entre los paquetes principales que usaremos están: 
+
+- `dplry`: funciones con comandos claros para manipular bases
+
+- `tidyr`: limpieza y orden de los datos
+
+- `stringr`: trabajar sobre strings con multiples operaciones posibles
+
+- `ggplot2`: graficar
+
+
+---
+
+## Manipular datos
+
+Como todo paquete para utilizarlo primero hay que instalarlo y luego cargarlo:
+
+```{r, eval=FALSE}
+
+#install.packages("tidyverse")
+library(tidyverse)
+
+```
+
+--
+
+Listo! Veamos ahora ya tenemos disponibles muchas de las principales funciones para trabajar con datos
+
+--
+
+Solo nos falta una cosa, conocer cómo se usa y para que sirve el elemento mas popular de esta libreria...
+--
+ **el operador "pipe" ` %>% `** 
+
+
+---
+
+## Operador pipe
+
+El pipe es fundamental en R. 
+
+--
+
+¿Por qué?
+
+--
+
+Porque permite unir acciones, es decir **aplicar diversas funciones de forma secuencial** sin tener que llamar siempre al dataframe
+
+--
+
+El operador pipe tiene la siguiente lógica: 
+
+--
+
+  - Toma lo que esté a su izquierda 
+--
+
+  - A ese objeto le aplica la función a su derecha
+
+--
+
+<p>&nbsp;</p>
+
+En la función ya **está implicito el df** sobre el que queremos realizar las transformaciones
+  
+--
+
+Veamos cómo funciona con el ejemplo de la función `filter()` de dplyr
+
+
+---
+
+## Filter()
+
+Usemos la opción `filter()` que como su nombre lo indica permite filtrar los datos en base a una condición 
+
+Esta función me pide dos **argumentos** básicos: 
+- dataframe a transformar 
+- condicion a aplicar
+
+```{r,}
+
+rcia <- filter(eph_ind, AGLOMERADO==18)
+
+```
+
+
+---
+
+Para estar seguros de que aplicamos correctamente el filtro podemos generar un tabulado de esa columna con `table()` y ver si hay valores distintos del buscado 
+
+```{r}
+
+table(rcia$AGLOMERADO)
+
+```
+
+
+--
+
+Debería coincidir con el numero total de filas 
+
+```{r}
+
+nrow(rcia)
+
+```
+
+
+--
+
+Aplicamos correctamente nuestro filtro
+
+
+---
+
+## Filter()
+
+Ahora usemos el pipe:
+
+--
+
+```{r, }
+
+rcia <- eph_ind %>% filter(AGLOMERADO==18)
+
+```
+
+--
+
+El pipe ` %>% ` toma el **dataframe a la izquieda** y le aplica la **función a la derecha**
+
+--
+
+Chequeemos que obtenemos el mismo resultado
+
+```{r, collapse=TRUE}
+
+table(rcia$AGLOMERADO)
+nrow(rcia)
+```
+
+
+
+---
+
+## Filter()
+
+Por supuesto que podemos pasarle mas condicioens al filtro
+
+Retomemos nuestro ejemplo anterior, dejando solo los individuos del aglomerado 18 y que además que no tengan ingreso missing y que sean mujeres
+
+--
+
+```{r}
+
+rcia <- eph_ind %>% filter(AGLOMERADO==18 & !is.na(IPCF) & CH04==2)
+
+```
+
+--
+
+Notar la diferencia con
+
+```{r, eval=FALSE}
+
+rcia <- eph_ind[eph_ind$AGLOMERADO==18 & !is.na(eph_ind$IPCF) & eph_ind$CH04==2,]
+
+```
+
+--
+
+Ya no es necesario llamar al dataframe antes llamar a la columna, el trabajo del pipe es ese, **considerar el dataframe de la izquierda como implicito en la operación**
+
+
+---
+
+Pasemos a otra función
+
+
+- **`filter()`**
+
+- `select()`
+
+- `rename()`
+
+- `mutate()`
+
+- `summarise()`
+
+- `group_by()`
+
+- `arrange()`
+
+
+---
+
+Pasemos a otra función
+
+
+- `filter()`
+
+- **`select()`**
+
+- `rename()`
+
+- `mutate()`
+
+- `summarise()`
+
+- `group_by()`
+
+- `arrange()`
+
+---
+
+## Select()
+
+Permite seleccionar las columnas de un dataframe y también ordenarlas
+
+--
+
+La eph tiene muchas columnas, solo trabajaremos con algunas. Quedemosnos con las siguientes que usaremos
+
+```{r}
+
+eph_short <- eph_ind %>% select(CODUSU, NRO_HOGAR, AGLOMERADO, IPCF, CH04)
+
+```
+
+--
+
+Ahora solo debemos tener estos nombres en la base 
+
+
+```{r}
+names(eph_short )
+```
+
+<p>&nbsp;</p>
+
+--
+
+Como hemos visto, también podemos aplicar la función sin el pipe
+
+
+```{r}
+
+eph_short  <- select(eph_ind, CODUSU, NRO_HOGAR, AGLOMERADO, IPCF, CH04)
+
+```
+
+---
+
+Pero...¿cómo hariamos si quisieramos aplicar el `filter()` anterior junto con este `select()`?
+
+--
+
+Armemos un data frame que:
+-   contenga las filas que cumplian con la condición anterior 
+-   que tenga solo las colum seleccionadas
+
+--
+
+```{r, }
+
+rcia_short  <- eph_ind %>% 
+               filter(AGLOMERADO==18 & !is.na(IPCF) & CH04==2) %>% #<<
+               select(CODUSU, NRO_HOGAR, AGLOMERADO, IPCF, CH04) #<<
+
+```
+
+--
+
+El pipe me permite vincular operaciones generando un flujo donde el punto de partida y llegada es claro, y donde puedo leer facilmente las operaciones aplicadas en el medio 
+
+<p>&nbsp;</p>
+
+--
+
+```{r}
+
+dim(rcia_short)
+
+```
+
+
+
+---
+
+## Select()
+
+Esta misma función también me permite reordenar las filas
+
+--
+
+Supongamos que quiero traer adelante las filas sobre las que voy a aplicar una operación y dejar atrás los id
+
+
+```{r}
+
+eph_short <- eph_ind %>% select(AGLOMERADO, IPCF, CH04, CODUSU, NRO_HOGAR)
+
+```
+
+--
+
+```{r}
+
+names(eph_short)
+
+```
+
+---
+
+Un atajo para no especificar todas las demas columnas es es la función `everything()` dentro del `select()`
+
+```{r}
+eph_short <- eph_ind %>% select(AGLOMERADO, IPCF, CH04, everything())
+
+```
+
+--
+
+```{r}
+
+names(eph_short)
+
+```
+
+---
+
+También es posible usar los `:` para seleccionar un rango de columnas consecutivas
+
+
+```{r}
+
+eph_short <- eph_ind %>% select(AGLOMERADO, IPCF, CH04, NIVEL_ED:CAT_INAC)
+```
+
+--
+
+```{r}
+
+names(eph_short)
+
+```
+
+<p>&nbsp;</p>
+
+--
+
+Incluso podemos hacer esto mismo indicando las columnas con subindices de números y usando :
+
+```{r}
+
+eph_short <- eph_ind %>% select(9, 170, 12, 27:31)
+
+```
+
+--
+
+```{r}
+
+names(eph_short)
+
+```
+
+---
+
+## Select()
+
+La misma función nos permite también borrar columnas, para ello solo anteponemos `-`
+
+--
+
+Para borrar por ejemplo la columan AGLOMERADO, sería simplemente
+
+```{r}
+eph_short <- eph_short %>% select(-AGLOMERADO)
+
+```
+
+--
+
+```{r, echo=FALSE}
+
+names(eph_short)
+
+```
+
+De la misma manera que antes podemos borrar un conjunto de columnas con `:` y `()`
+
+
+```{r,}
+
+eph_short <- eph_short %>% select(-(NIVEL_ED:CAT_INAC), -IPCF)
+
+```
+
+--
+
+```{r, echo=FALSE}
+names(eph_short)
+```
+
+
+(Tambien es posible borrar usando los números de columnas)
+
+---
+
+## Select()
+
+Así como la función `everything()` existen otras que se combinan muy bien con `select()` para poder manipular los datos
+
+
+```{r, echo=FALSE, out.width="75%", out.height="75%", fig.align="center", fig.cap='Fuente:https://rsanchezs.gitbooks.io/rprogramming/content/chapter9/select.html'}
+
+knitr::include_graphics("inputs/Clase2/select.jpg")
+
+```
+
+---
+
+## Select()
+
+Veamos un ejemplo: en el diseño de registro del EPH todas las preguntas que empiezan con *"PP08"* refieren a la ocupacion principal de los asalariados. 
+
+--
+
+Si estamos interesados en mantener solo este set de preguntas en nuestra base podemos lograrlo facilmente 
+
+--
+
+```{r}
+
+eph_asal <- eph_ind %>% select(CODUSU, NRO_HOGAR, starts_with("PP08"))
+
+```
+--
+
+```{r}
+names(eph_short)
+```
+
+
+---
+
+- `filter()`
+
+- `select()`
+
+- **`rename()`**
+
+- `mutate()`
+
+- `summarise()`
+
+- `group_by()`
+
+- `arrange()`
+
+
+---
+
+## Rename()
+
+Como su nombre lo indica permite renombrar las variables 
+
+--
+
+TIP: Los nombres van al revés que en Stata, primero nombre (*new_name*), luego nombre a reemplazar (*old_name*)
+
+--
+
+```{r, }
+
+rcia_short  <- eph_ind %>% 
+               filter(AGLOMERADO==18 & !is.na(IPCF) & CH04==2) %>% 
+               select(CODUSU, NRO_HOGAR, AGLOMERADO, IPCF, CH04, CH06) %>%
+               rename(sexo = CH04, edad = CH06) #<<
+
+```
+
+--
+
+```{r, echo=FALSE}
+
+head(rcia_short,5)
+
+```
+
+
+---
+
+## Rename()
+
+Nos quedaron columnas en mayúsculas y en minúsculas
+
+Una extensión de esta función, `rename_with()` nos permite renombrar varias columnas a la vez
+
+```{r}
+
+rcia_short  <- eph_ind %>% 
+               filter(AGLOMERADO==18 & !is.na(IPCF) & CH04==2) %>% 
+               select(CODUSU, NRO_HOGAR, AGLOMERADO, IPCF, CH04, CH06) %>%
+               rename(sexo = CH04, edad = CH06) %>%
+               rename_with(tolower) #<<
+
+```
+
+--
+
+```{r}
+
+names(rcia_short)
+
+```
+
+
+---
+
+## Rename()
+
+Podemos realizar incluso operaciones un poco mas complejas. Para eso es importante concoer qué argumentos debemos especificar
+
+   `rename_with(.data, .fn, .cols, ...)`
+
+--
+
+Esto se lee como:
+
+- debo indicarle sobre qué dataframe operar: `.data`
+- qué función aplicar:  `.fn`
+- sobre cuáles columnas: `.cols` 
+
+--
+
+Veamos un ejemplo, supongamos que antes de juntar la base de individuos con la de hogares, quiero identificar a las variables de cada base.
+
+--
+
+Para ello buscamos agregar el sufijo *_ind* a todas las variables
+
+Cómo hariamos?
+
+
+---
+
+Vamos por parte 
+
+
+  - `.data`: no debo especficiar, de eso se encarga %>% 
+  - `.cols`: quiero hacerlo sobre todas, entonces puedo usar la función `everything()`
+  - `.fn`: tengo que pensar una función que a lo que ya tengo le agregue un sufijo
+
+--
+
+Para esto último nos ayuda la función `paste()`
+
+--
+
+```{r}
+
+eph_ind <- eph_ind %>% rename_with( .cols = everything(), 
+                                    .fn=function(x){ paste0(x, "_ind") } )
+
+```
+
+Hacia el final del curso podremos entender mejor como opera y cuando necesitamos funciones del tipo `function(x){ paste0(x, "_ind") }`
+
+---
+
+Por ahora, elijan creer
+
+```{r}
+names(eph_ind)
+```
+
+--
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+[o googleen...](https://stackoverflow.com/questions/33741357/how-do-i-add-a-prefix-to-several-variable-names-using-dplyr)
+
+
+---
+
+
+- `filter()`
+
+- `select()`
+
+- `rename()`
+
+- **`mutate()`**
+
+- `summarise()`
+
+- `group_by()`
+
+- `arrange()`
+
+
+---
+
+## Mutate ()
+
+Mutate es la función que nos permite transformar las columnas, crear y modificarlas. En general, sin ser exahustivos, podemos aplicar distintos tipos de transformaciones
+
+--
+
+  - Operación aritmetica sobre los valores numéricos
+  - Manipular characteres en columnas de texto
+  - Una operación entre dos columnas
+  - Aplicarle cualquier función a la columna
+
+--
+
+En todos los casos podemos crear una columna nueva o modificar la que ya existe
+
+--
+
+Por ejemplo, si quisieramos crear una columna con el IPCF en dolares:
+
+```{r, echo=FALSE}
+
+eph_ind <- read.csv("datos/Clase2/EPH_3T_22/usu_individual_T322.txt", sep=";")
+
+```
+
+```{r, warning=FALSE}
+
+eph_ind <- eph_ind %>% mutate(IPCF_USD = as.numeric(IPCF)/390)
+  
+```
+
+--
+
+Notar que aquí aplicamos dos transformaciones, primero `as.numeric()` y luego dividimos por el tipo de cambio
+
+---
+
+## Mutate ()
+
+
+Si queremos sumar los distintos ingresos laborales que puede tener una persona:
+
+- Monto de ingreso de la ocupación principal (*P21*)
+- Monto de ingreso de otras ocupaciones (*TOT_P12*)
+
+--
+
+```{r, warning=FALSE}
+
+eph_ind <- eph_ind %>% mutate(ILA_TOT = P21 + TOT_P12)
+  
+```
+
+--
+
+Si queremos trabajar con el logaritmo del ingreso de la ocupación princial, debemos crear la columna mediante la función `log()`
+
+```{r, warning=FALSE}
+
+eph_ind <- eph_ind %>% mutate(log_w = log(P21))
+  
+```
+
+
+---
+
+## Mutate ()
+
+
+Para el análisis de datos, muchas veces necesitamos crear variables binarias a partir de otras variables en la base 
+
+--
+
+Por ejemplo, en la EPH tenemos la variable *MAS_500* que indica si el aglomerada tiene mas de 500.000 habitantes
+
+```{r}
+
+table(eph_ind$MAS_500)
+
+```
+
+--
+
+Parece ser que es del tipo character
+
+```{r}
+is.character(eph_ind$MAS_500)
+```
+
+---
+
+## Mutate ()
+
+Supogamos que con ese umbral de 500 mil, definiremos un aglomerado como urbano o no, y para eso debemos crear una variable nueva, llamada *URBANO*
+
+--
+
+Necesitamos un función que contemple condiciones:
+
+ - si MAS_500=="N" ; URBANO=0
+ - si MAS_500=="S" ; URBANO=1
+
+--
+
+`ifelse()` hace perfetamente este trabajo 
+
+```{r}
+
+eph_ind <- eph_ind %>% mutate(URBANO = ifelse(MAS_500=="S", 1, 0))
+
+```
+
+---
+
+Entonces ahora puedo saber qué proporcion de los encuestados vive en lo que definimos como zona urbana
+
+```{r}
+mean(eph_ind$URBANO)
+```
+--
+
+```{r}
+x <- round( mean(eph_ind$URBANO), digits=2)*100
+
+print(paste("el ", x, "% de las personas viven en zona urbana", sep=""))
+```
+
+---
+
+## Mutate ()
+
+¿Qué ocurre en casos donde la cantidad de condiciones posibles son mas de 2?
+
+Por ejemplo, en el caso de la variable región
+
+
+```{r}
+table(eph_ind$REGION)
+```
+
+Aquí necesitamos de la función `case_when()`. Como su nombre lo indica, lo logica es: si pasa esto, tal cosa, si pasa esto otro tal otra y así las veces que necesitemos
+
+---
+
+Creemos una nueva variable indicativa de la región pero que ahora sea character 
+
+```{r}
+
+eph_ind <- eph_ind %>% 
+          mutate(REGION_CH = case_when(REGION==1 ~   "Gran Buenos Aires",
+                                       REGION==40 ~  "Noroeste",
+                                       REGION==41 ~  "Nordeste",
+                                       REGION==42 ~  "Cuyo",
+                                       REGION==43 ~  "Pampeana",
+                                       REGION==44 ~  "Patagónica")) #DOBLE()
+
+```
+
+
+--
+
+```{r}
+table(eph_ind$REGION_CH)
+```
+
+
+---
+
+
+- `filter()`
+
+- `select()`
+
+- `rename()`
+
+- `mutate()`
+
+- **`summarise()`**
+
+- `group_by()`
+
+- `arrange()`
+
+---
+
+## Summarise()
+
+Función por excelencia para **generar medidas resumenes** de las observaciones de datos. 
+
+--
+
+**Colapsa la base** a un valor o valores según la operación aplicada. 
+
+--
+
+Retomando nuestro ejemplo inicial, supongamos que quisieramos obtener la media de edad y la mediana del ingreso a nivel país
+
+```{r, warning=FALSE}
+
+resumen <- eph_ind %>% 
+           filter(!is.na(IPCF)) %>% 
+           rename(sexo = CH04, edad = CH06) %>%
+           rename_with(tolower) %>% 
+           mutate(ipcf = as.numeric(ipcf)) %>% 
+           summarise(edad_mean = mean(edad, na.rm=TRUE),       #<<
+                     ipcf_median = median(ipcf, na.rm = TRUE)) #<<
+
+```
+
+
+---
+
+## Summarise()
+
+Notar que antes, como resultados obteniamos un dataframe, es decir filtramos las filas, nos quedabamos con menos columnas y las modificabamos, pero el resultado seguía siendo una base tabular. 
+
+--
+
+Ahora `summarise()` colpasa todos las observaciones a un único valor o valores
+
+--
+
+```{r}
+
+resumen
+
+```
+
+--
+
+Otro ejemplo, para los ocupados calculemos el promedio y el maximo de horas trabajadas en la ocupación principal (*PP3E_TOT*)
+
+
+```{r}
+
+eph_ind %>% filter(ESTADO==1) %>% 
+            summarise(mean_hs = mean(PP3E_TOT), #<<
+                      max_hs  = max(PP3E_TOT))  #<<
+
+```
+
+---
+
+## Summarise() vs Mutate()
+
+
+Cuál es la diferencia entre estas dos funciones? Al parecer ambas sirven para generar nuevas columnas o reemplazarlas por nuevos valores
+
+
+  - `mutate()` modifica una o varias columnas pero no altera la estructura de la base
+  - `summarise()` genera una columna o reemplaza una existente colapsando las base (cambia las dimensiones)
+  
+--
+
+El ejemplo anterior nos puede servir. Con el max de horas vimos que existen valores raros o imposibles, estos nos afectan el calculo del promedio, de la media, varianza, etc. 
+
+--
+
+Tenemos que corregir ese valor antes de generar medidas resúmenes. 
+
+--
+
+¿Se les ocurre cómo?
+
+--
+
+```{r, eval=FALSE}
+
+eph_ind %>% filter(ESTADO==1) %>% 
+            mutate(PP3E_TOT = ifelse(PP3E_TOT==999, NA, PP3E_TOT)) %>% 
+            summarise(mean_hs = mean(PP3E_TOT), 
+                      max_hs  = max(PP3E_TOT))
+
+```
+
+---
+
+```{r}
+
+eph_ind %>% filter(ESTADO==1) %>% 
+            mutate(PP3E_TOT = ifelse(PP3E_TOT==999, NA, PP3E_TOT)) %>% 
+            summarise(mean_hs = mean(PP3E_TOT), 
+                      max_hs  = max(PP3E_TOT))
+
+```
+
+
+Que pasó?
+
+--
+
+Exacto! Ahora introdujimos `NA` en la columna y nos olvidmaos de pedrile a la función que los ignore
+
+--
+
+```{r}
+
+eph_ind %>% filter(ESTADO==1) %>% 
+            mutate(PP3E_TOT = ifelse(PP3E_TOT==999, NA, PP3E_TOT)) %>% 
+            summarise(mean_hs = mean(PP3E_TOT, na.rm=TRUE), 
+                      max_hs  = max(PP3E_TOT, na.rm=TRUE))
+
+```
+
+--
+
+No solo cambió el calculo del máximo, al quitar los valores raros también cambia la estimación de la media
+
+
+---
+
+## Summarise()
+
+En nuestro ejemplo, solo empleamos la media, mediana y el máximo, pero la lista de funciones útiles para aplicar con `summarise()` es mucho mas extensa
+
+Veamos las más comunes
+
+- Center: `mean()`, `median()`
+
+- Spread: `sd()`, `IQR()`, `mad()`
+
+- Range: `min()`, `max()`
+
+- Position: `first()`, `last()`,` nth()`
+
+- Count: `n()`, `n_distinct()`
+
+- Logical: `any()`, `all()`
+
+
+---
+
+
+- `filter()`
+
+- `select()`
+
+- `rename()`
+
+- `mutate()`
+
+- `summarise()`
+
+- **`group_by()`**
+
+- `arrange()`
+
+---
+
+## Group by() 
+
+Aún nos queda por ver el uso más común que se le suele dar al `summarise()`
+--
+Para ello tenemos que introducir antes a `group_by()`
+
+--
+
+Rara vez reducimos todas las observaciones en una sola dimensión. En general en el análisis económico nos interesan las diferencias entre distintos grupos, buscamos agrupar las observaciones para compararlas, encontrar patrones que nos permitan hablar de heterogeneidades, etc. 
+
+--
+
+Cómo pueden sospechar,`group_by()` nos habilita este tipo de analisis. Como  función nos permite realizar una misma operación para un conjunto o grupos de observaciones.
+
+--
+
+Al agrupar las observaciones por alguna o varias dimensiones en común, estaremos tratando a cada conjunto como una unidad aparte. 
+
+---
+
+
+## Group by() + Summarise() 
+
+Por ejemplo, si en nuestro ejemplo ahora quisieramos ver cuál es la diferencia en la mediana del salario y en el promedio de horas trabajadas por género
+
+--
+
+```{r, warning=FALSE}
+
+subset <- eph_ind %>% 
+               filter(!is.na(IPCF)) %>% 
+               rename(sexo = CH04, edad = CH06) %>%
+               rename_with(tolower) %>% 
+               mutate(ipcf = as.numeric(ipcf),
+                      pp3e_tot = ifelse(pp3e_tot==999, NA, pp3e_tot)) 
+
+gender_diff <- subset %>% 
+                  group_by(sexo) %>% #<<
+                  summarise(mean_hs = mean(pp3e_tot, na.rm=TRUE),        
+                           ipcf_median = median(ipcf, na.rm = TRUE)) 
+
+```
+
+---
+
+```{r, eval=FALSE}
+View(gender_diff)
+
+```
+
+--
+
+```{r, echo=FALSE}
+
+knitr::kable(gender_diff, format = "pipe", align = "c")
+
+```
+
+--
+
+Ahora la cantidad de filas resultantes son igual a la cantidad de grupos distintos que surgen del `group_by()`
+
+
+---
+
+## Group by() + Summarise() 
+
+El agrupamiento puede ser por mas de una variable
+
+Por ejemplo, si queremos saber si la diferencia en medias salariales y en horas trabajadas es distintas en zonas urabanos y no urbanas, deberiamos agrupar por ambas variables
+
+
+```{r, warning=FALSE, message=FALSE}
+
+gender_diff_ur <- subset %>% 
+                    mutate(URBANO = ifelse(mas_500=="S", 1, 0)) %>% 
+                    group_by(sexo, urbano) %>%  #<<
+                    summarise(mean_hs = mean(pp3e_tot, na.rm=TRUE),        
+                              ipcf_median = median(ipcf, na.rm = TRUE)) 
+ 
+```
+
+--
+
+```{r, echo=FALSE}
+
+knitr::kable(gender_diff_ur, format = "pipe", align = "c")
+
+```
+
+
+---
+
+## Group by() + Mutate() + Summarise() 
+
+
+
+```{r}
+
+miembros <- eph_ind %>% group_by(CODUSU, NRO_HOGAR) %>% 
+                        mutate(tot = n()) %>% 
+                        group_by(tot) %>% 
+                        summarise(ayuda = mean(V5_M))
+                        
+```
+
+
+---
+
+
+- `filter()`
+
+- `select()`
+
+- `rename()`
+
+- `mutate()`
+
+- `summarise()`
+
+- `group_by()`
+
+- **`arrange()`**
+
+---
+
+## Arrange()
+
+Arrange es la última función qeu veremos, esta nos permite ordenar de forma ascendente o descente las observaciones
+
+Por ejemplo, si dentro del hogar quisieramos ordenar a los miembros por su edad
+
+
+```{r}
+
+miembros <- eph_ind %>% group_by(CODUSU, NRO_HOGAR) %>% 
+                        arrange(CH06, .by_group = TRUE) 
+                        
+```
+
+```{r}
+
+miembros[1:10, c("CODUSU", "NRO_HOGAR", "CH06")]
+
+```
+
+---
+
+## Extra - Identación
+

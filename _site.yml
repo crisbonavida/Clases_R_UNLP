@@ -1,0 +1,15 @@
+name: "Clases R - UNLP"
+title: "Inicio"
+description: "Material de Clase"
+
+navbar:
+
+  right:
+    - text: "Diapositivas"
+      menu:
+        - text: "Clase 1"
+          href: R-Clase-1.html
+        - text: "Clase 2"
+          href: R-Clase-2.html
+
+output: distill::distill_article
